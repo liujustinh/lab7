@@ -15,9 +15,10 @@
 
 using namespace std; 
 
-class rshell {  //RShell class header
+class rshell 
+{  
     protected: 
-        vector<Command*> commands;    //container of commands
+        vector<Base*> commands;    //container of commands
         vector<Connector*> connectors;  //container of connectors
     public:
         rshell() : commands(0), connectors(0) {};

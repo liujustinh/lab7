@@ -1,86 +1,136 @@
 #include "connector.h"
-
+#include "command.h"
 using namespace std; 
 
-AndConnector::AndConnector(){
+AndConnector::AndConnector()
+{
     name = "&&";
     one = NULL;
     two = NULL;
+    connect = NULL;
 }
 
-AndConnector::~AndConnector(){
+AndConnector::~AndConnector()
+{
     name = "";
     one = NULL;
     two = NULL;
+    connect = NULL;
 }
 
-AndConnector::AndConnector(Command* a, Command* b) {
+AndConnector::AndConnector(Base* a, Base* b)
+{
     name = "&&"; 
     one = a;
     two = b;
+    connect = NULL;
 }
 
-OrConnector::OrConnector(){
+AndConnector::AndConnector(Connector* a, Base* b) 
+{
+    name = "&&"; 
+    one = NULL;
+    connect = a; 
+    two = b; 
+}
+
+OrConnector::OrConnector()
+{
     name = "||";
     one = NULL;
     two = NULL;
+    connect = NULL;
 }
 
-OrConnector::~OrConnector(){
+OrConnector::~OrConnector()
+{
     name = "";
     one = NULL;
     two = NULL;
+    connect = NULL;
 }
-OrConnector::OrConnector(Command* a, Command *b) {
+
+OrConnector::OrConnector(Base* a, Base *b)
+{
     name = "||"; 
     one = a;
     two = b;
 }
 
-
-void AndConnector::evaluate()       //checks to see if the first command has run yet and if it has, runs 2nd command
+OrConnector::OrConnector(Connector* a, Base *b )
 {
-    int c = one->run(); 
-    if(c != -1)
-    {
-        two->run();
-    }
+    name = "||";
+    connect = a;
+    one = NULL;
+    two = b;
 }
 
-
-void OrConnector::evaluate()    //checks whether first command has run yet, if it didn't, runs 2nd command
-{
-    int c = one->run();
-    if( c == -1)
-    {
-        two->run();
-    }
-}
-
-SemiConnector::SemiConnector(Command* a)    
+SemiConnector::SemiConnector(Base* a)    
 {
     name = ";";
     one = a;
-    two = NULL;
 }
-
-void SemiConnector::evaluate()    //runs the first command while also separating commands
-{
-    one->run();
-}
-
 SemiConnector::SemiConnector()
 {
     name = ";";
     one = NULL;
-    two = NULL;
 }
 
-SemiConnector:: ~SemiConnector()
+SemiConnector::~SemiConnector()
 {
     name = "";
     one = NULL;
-    two = NULL;
 }
 
 
+int SemiConnector::evaluate()    //runs the first command while also separating commands
+{
+    check = one ->run();
+    return check;
+}
+
+int AndConnector::evaluate()       //checks to see if the first command has run yet and if it has, runs 2nd command
+{
+    int c;
+    if (one != NULL)
+    {
+        c = one->run(); 
+        if (c != -1)
+        {
+            c = two->run();
+        }
+    }
+    else {
+        c = connect->checker();
+        if (c != -1)
+        {
+            c = two->run();
+        }
+    }
+    check = c;
+    return c;
+    
+}
+
+
+int OrConnector::evaluate()    //checks whether first command has run yet, if it didn't, runs 2nd command
+{
+    int c;
+    if (one != NULL)
+    {
+        c = one->run();
+        if ( c == -1)
+        {
+            c = two->run();
+        }
+    }
+    else {
+        c = connect->checker();
+        if (c == -1)
+        {
+            c = two->run();
+        }
+    }
+    check = c; 
+    return c;
+}

@@ -7,50 +7,76 @@
 
 using namespace std; 
 
+class Command; 
+
 class Connector             //connector header file
 {
     protected: 
         string name; 
-        Command* one;
-        Command* two;
+        Base* one;
+        int check; 
     public:
         Connector() : name("") {};
-        virtual void evaluate() = 0;
+        virtual int evaluate() = 0;
         virtual string access() = 0; 
+        virtual int checker() = 0;
 };
 
-class AndConnector : public Connector {
+class AndConnector : public Connector 
+{
+    protected:
+        Connector* connect;         //like the OrConnector, holds pointer to connector/command to see if the command before it ran
+        Base* two;
     public: 
         AndConnector();
-        AndConnector(Command*, Command*);
-        void evaluate(); 
+        AndConnector(Base*, Base*);
+        AndConnector(Connector*, Base*);
+        int evaluate(); 
         ~AndConnector();
         string access() {
             return name; 
         }
+        int checker() {
+            return check; 
+        }
 };
 
 
-class OrConnector : public Connector {
+class OrConnector : public Connector 
+{
+    protected:
+        Connector* connect;
+        Base* two;
     public:
         OrConnector();
-        OrConnector(Command*, Command*);
+        OrConnector(Base*, Base*);
+        OrConnector(Connector*, Base*); 
         ~OrConnector();
-        void evaluate(); 
+        int evaluate(); 
         string access() {
             return name; 
+        }
+        int checker() {
+            return check; 
         }
 };
 
-class SemiConnector : public Connector {
+class SemiConnector : public Connector 
+{
     public:
         SemiConnector();
-        SemiConnector(Command*);
+        SemiConnector(Base*);
         ~SemiConnector();
-        void evaluate();
-        string access() {
+        int evaluate();
+        string access() 
+        {
             return name; 
         }
+        int checker()
+        {
+            return check;
+        }
 };
+
 
 #endif
