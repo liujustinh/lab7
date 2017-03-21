@@ -22,74 +22,108 @@ Command::~Command()
 
 int Command:: run()
 {                          //runs a single commands; returns 1 if ran, -1 if did not run
-    if (cmd == "exit")     //secondary exit command in attempt to fix exit bug
+   /*if((cmd.find("|") < 1000) || (cmd.find("<") < 1000) || (cmd.find(">>") < 1000) || (cmd.find(">") < 1000)) 
     {
-        std::exit(0); 
-    }
-    
-    char** comms = new char*[1000]; 
-    string temp = cmd.substr(0,cmd.find(" "));
-    char *comm = new char[cmd.length()];
-    char *commHold = new char[cmd.length()];
-    std::strcpy(comm,temp.c_str());
-    
-    unsigned j = 0; 
-    while (cmd.find(" ") < 1000)
-    {
-        if( j == 0)
+        vector<int> pipePos;
+        vector<int> inputPos; 
+        vector<int> outputPos; 
+        vector<int> doutputPos; 
+        
+        for (unsigned a = 0; a < cmd.length() + 1; ++a) 
         {
-            comms[j] = comm;
-            j++;
+            if (cmd.at(a) == '|')
+            {
+                pipePos.push_back(a); 
+            }
+            if (cmd.at(a) == '<')
+            {
+                outputPos.push_back(a); 
+            }
+            if (cmd.at(a) == '>')
+            {
+                if (cmd.at(a + 1) == '>')
+                {
+                    doutputPos.push_back(a); 
+                    a++;
+                }
+                else
+                {
+                    inputPos.push_back(a); 
+                }
+            }
         }
-        else
+        return 1; 
+    }
+    else 
+    {*/
+        if (cmd == "exit")    //secondary exit command in attempt to fix exit bug
         {
-            temp = cmd.substr(0, cmd.find(" ")); 
-            std::strcpy(commHold, temp.c_str());
-            comms[j] = commHold; 
-            j++;
+            std::exit(1); 
         }
-        cmd.erase(0,cmd.find(" ") + 1);
-    }
-    
-    if(!cmd.empty())
-    {
-        temp = cmd;
-        char *com = new char[cmd.length()];
-        std::strcpy(com,temp.c_str());
-        comms[j] = com;
-    }
-    
-    
-    comms[j+1] = NULL; 
-    int n = 1; 
-
-    pid_t pid = fork(); 
-    
-    if (pid == -1)    //fork processes and checks if they are running properly return 1 if works, -1 if does not work
-    {
-        perror("Fork failed");
-        n = -1; 
-    }
-    
-    else if (pid == 0 && execvp(comm, comms)) 
-    {
-        perror("Execute failed");
-        n = -1; 
-        return n;
-    }
-    
-    else if (pid > 0)
-    {
-        if (wait(0) == -1) 
+        
+        char** comms = new char*[1000]; 
+        string temp = cmd.substr(0,cmd.find(" "));
+        char *comm = new char[cmd.length()];
+        char *commHold = new char[cmd.length()];
+        std::strcpy(comm,temp.c_str());
+        
+        unsigned j = 0; 
+        while (cmd.find(" ") < 1000)
         {
-            perror("Wait failed"); 
+            if( j == 0)
+            {
+                comms[j] = comm;
+                j++;
+            }
+            else
+            {
+                temp = cmd.substr(0, cmd.find(" ")); 
+                std::strcpy(commHold, temp.c_str());
+                comms[j] = commHold; 
+                j++;
+            }
+            cmd.erase(0,cmd.find(" ") + 1);
+        }
+        
+        if(!cmd.empty())
+        {
+            temp = cmd;
+            char *com = new char[cmd.length()];
+            std::strcpy(com,temp.c_str());
+            comms[j] = com;
+        }
+        
+        
+        comms[j+1] = NULL; 
+        int n = 1; 
+    
+        pid_t pid = fork(); 
+        
+        if (pid == -1)    //fork processes and checks if they are running properly return 1 if works, -1 if does not work
+        {
+            perror("Fork failed");
             n = -1; 
         }
-    }
-    delete[] comms; 
-    delete[] comm; 
-    delete[] commHold;
-    return n; 
+        
+        else if (pid == 0 && execvp(comm, comms)) 
+        {
+            perror("Execute failed");
+            n = -1; 
+            return n;
+        }
+        
+        else if (pid > 0)
+        {
+            if (wait(0) == -1) 
+            {
+                perror("Wait failed"); 
+                n = -1; 
+            }
+        }
+        delete[] comms; 
+        delete[] comm; 
+        delete[] commHold;
+        return n; 
 }
 
 testCommand::testCommand() 
@@ -128,8 +162,28 @@ void testCommand::checkFlags()
 
 void testCommand::getDir() 
 {
-    unsigned n = cmd.find("/");
-    dir = cmd.substr(n); 
+    if (cmd.find("[") < 1000)
+    {
+        cmd = cmd.substr(cmd.find("[") + 2);
+    }
+    if (cmd.find("]") < 1000) 
+    {
+        cmd = cmd.substr(0, cmd.length() - 2); 
+    }
+    string temp = cmd; 
+    unsigned checker = 0; 
+    for (unsigned i = 0; i < temp.length(); ++i) 
+    {
+        if (isspace(temp.at(i)))
+        {
+            ++checker; 
+        }
+    }
+    for (unsigned a = 0; a < checker; ++a) 
+    {
+        temp = temp.substr(temp.find(" ") + 1); 
+    }
+    dir = temp; 
 }
 
 int testCommand::run() 
@@ -246,11 +300,6 @@ minishell::minishell(string a)
                 {
                     createCommands(cmd.substr(i, j - i - 2 ));
                     i = j;
-                }
-                if (cmd.find('/') > 1000)
-                {
-                    cout << "Error: not enough arguments or arguments inputted incorrectly. " << endl;
-                    break;
                 }
                 for (unsigned k = j; k < boundary; ++k) 
                 {
@@ -518,7 +567,9 @@ int minishell::run()
         commands.erase(commands.begin());
     }
     return n; 
+    
 }
+
 
 
 

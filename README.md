@@ -10,20 +10,31 @@ set by the connectors.
 
 
 ##Bugs
--Program can malfunction when multiple connectors are chained together
 
 ###Bugs Involving Test:
+-when calling test command with [] within precedence operators (), the program can parse the test command incorrectly
+-when calling test command within precedence operators, the program can parse the commands used within the same precedence parantheses incorrectly
 
--commands using in certain orders with connectors can cause the program to not execute the commands properly
--Sometimes commands would not execute properly with andConnector and orConnector being used.
 
 ###Bugs with Connector:
--andConnector/orConnector: when used with certain commands, can cause the program to fork too many processes or 
-    it can cause the system to not be able to retrieve hostname. 
-    -can also 
+-andConnector/orConnector: when used with certain commands, can cause the program to fork too many processes(?) or 
+    it can cause the system to not be able to retrieve hostname or bugs the exit command
 -if a command is called with ";" at the end, there can be an out-of-bounds error
-###Bugs with cd:
--cd: can cause a segmentation fault in some cases.
+-when exit is used in conjunction with multipled connectors, it will sometimes not run 
 
 ###Bugs with Exit: 
--exit: sometimes the exit command does not exit the program properly, requiring multiple user inputs of exit.
+-exit: sometimes the exit command does not exit the program properly, requiring multiple user inputs of exit. (see above for error with connectors)
+-exit when used in front of echo (i.e. echo exit) will not print exit to system but instead exits program
+-sometimes when exit is used after an OrConnector, it will run when it is not supposed to
+
+###Bugs with Precedence: 
+-the program can create extra commands or parse wrong if precedence operator is used within a precedence operator (i.e. (echo hi && (echo a && echo b)) && echo test
+
+###Bugs with Commented Commands:
+-when calling an existing function and having a commented argument provided to the function, the function will take in the commented command as its parameter when it's not supposed to
+
+###Bugs with Input/Output Redirection and Piping:
+-when calling multiple input/output redirection together with pipes, the program would crash
+-cannot handle output redirection
+-does not work with parantheses aka precendence operators
+-does not work with test
