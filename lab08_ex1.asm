@@ -1,0 +1,72 @@
+;=================================================
+; Name: Tarun Motwani
+; Email: tmotw001@ucr.edu 
+; 
+; Lab: lab 8
+; Lab section: 025
+; TA: Gaurav Jhaveri
+;=================================================
+.ORIG x3000
+
+LD R0, STRING_PTR
+LD R4, GETSTRING
+JSRR R4
+
+HALT
+STRING_PTR		.FILL	x4000
+GETSTRING		.FILL	x3200
+
+
+.ORIG x3200
+ST R0, R0_3200
+ST R1, R1_3200
+ST R2, R2_3200
+ST R5, R5_3200
+ST R6, R6_3200
+ST R7, R7_3200
+
+STRING_LOOP
+LD R1, NEWLINE_CHAR
+
+GETC
+OUT
+
+NOT R1, R1
+ADD R1, R1, #1
+ADD R3, R1, R0
+BRz ENTERCASE
+STR R0, R6, #0
+AND R6, R6, #0
+AND R5, R5, #0
+BR STRING_LOOP
+
+ENTERCASE
+AND R0, R0, #0
+STR	R0, R6, #0
+
+
+LD R0, R0_3200
+LD R1, R1_3200
+LD R2, R2_3200
+LD R5, R5_3200
+LD R6, R6_3200
+LD R7, R7_3200
+
+
+RET
+NEWLINE_CHAR	.FILL	'\n'
+NDEC_1		.FILL	#-1
+ZERO		.FILL	#0
+
+
+
+R0_3200	.BLKW	#1
+R1_3200	.BLKW	#1
+R2_3200	.BLKW	#1
+R5_3200	.BLKW	#1
+R6_3200	.BLKW	#1
+R7_3200	.BLKW	#1
+
+
+
+
