@@ -548,15 +548,78 @@ R7_4500 .BLKW #1
 ;-------------------------------
 ;INSERT CODE For Subroutine MACHINE_STATUS
 ;--------------------------------
+.ORIG x4800
 ;HINT back up 
+ST R0, R0_4800
+ST R1, R1_4800
+ST R2, R2_4800
+ST R3, R3_4800
+ST R4, R4_4800
+ST R5, R5_4800
+ST R6, R6_4800
+ST R7, R7_4800
+
+AND R1, R1, #0 
+AND R2, R1, #0 
+AND R3, R1, #0 
+AND R4, R1, #0 
+AND R5, R1, #0 
+AND R6, R1, #0 
+
+LD R2, USER_INPUT
+JSRR R2
+AND R2, R2, #0
+LD R5, COUNTER_4800
+ADD R6, R3, #0
+NOT R6, R6
+ADD R6, R6, #1
+ADD R5, R5, R6
+
+LD R4, BUSYNESS_ADDR_MACHINE_STATUS
+LDR R1, R4, #0
+
+CHECKER_4800
+	ADD R5, R5, #0
+	BRnz CHECK_STATUS
+	ADD R1, R1, R1					;potential bug
+	ADD R5, R5, #-1
+	BRp CHECKER_4800
+
+CHECK_STATUS
+	ADD R1, R1, #0
+	BRzp IF_FAIL_4800
+	ADD R2, R2, #1
+	BRnzp END_4800
+
+IF_FAIL_4800
+	AND R2, R2, #0
+	
+END_4800
+	LD R1, R1_4800
+	LD R5, R5_4800
+	LD R4, R4_4800
+	LD R6, R6_4800
+	LD R7, R7_4800
+
+RET
 
 ;HINT Restore
 
 ;--------------------------------
 ;Data for subroutine MACHINE_STATUS
 ;--------------------------------
-BUSYNESS_ADDR_MACHINE_STATUS.Fill xD000
+BUSYNESS_ADDR_MACHINE_STATUS .Fill xD000
+USER_INPUT	.FILL	x5400
+COUNTER_4800	.FILL	#15
 
+R0_4800	.BLKW	#1
+R1_4800	.BLKW	#1
+R2_4800	.BLKW	#1
+R3_4800	.BLKW	#1
+R4_4800	.BLKW	#1
+R5_4800	.BLKW	#1
+R6_4800	.BLKW	#1
+R7_4800	.BLKW	#1
 ;-----------------------------------------------------------------------------------------------------------------
 ; Subroutine: FIRST_FREE
 ; Inputs: None
@@ -567,14 +630,73 @@ BUSYNESS_ADDR_MACHINE_STATUS.Fill xD000
 ;-------------------------------
 ;INSERT CODE For Subroutine FIRST_FREE
 ;--------------------------------
+.ORIG x5100
 ;HINT back up 
+ST R0, R0_5100
+ST R1, R1_5100
+ST R2, R2_5100
+ST R3, R3_5100
+ST R4, R4_5100
+ST R5, R5_5100
+ST R6, R6_5100
+ST R7, R7_5100
 
+AND R1, R1, #0
+AND R2, R2, #0
+AND R3, R3, #0
+AND R4, R4, #0
+AND R5, R5, #0
+AND R6, R6, #0
+
+LD R4, BUSYNESS_ADDR_FIRST_FREE
+LDR R1, R4, #0
+
+LD R5, DEC_15_5100
+
+CHECKER_5100
+	ADD R1, R1, #0
+	BRzp IF_EXISTS
+	
+	ADD R6, R6, #1
+  	AND R2, R2, #0
+  	ADD R2, R2, R5
+  	ADD R5, R5, #-1
+  	BR SHIFT_BITS
+	
+IF_EXISTS
+	ADD R5, R5, #-1
+
+SHIFT_BITS
+	ADD R1, R1, R1
+
+VERIFY_5100
+	ADD R5, R5, #0
+	BRzp CHECKER_5100
+
+LD R1, R1_5100
+LD R3, R3_5100
+LD R5, R5_5100
+LD R4, R4_5100
+LD R7, R7_5100
+
+RET
 ;HINT Restore
 
 ;--------------------------------
 ;Data for subroutine FIRST_FREE
 ;--------------------------------
 BUSYNESS_ADDR_FIRST_FREE .Fill xD000
+
+DEC_15_5100 .FILL #15
+
+R0_5100	.BLKW	#1
+R1_5100	.BLKW	#1
+R2_5100	.BLKW	#1
+R3_5100	.BLKW	#1
+R4_5100	.BLKW	#1
+R5_5100	.BLKW	#1
+R6_5100	.BLKW	#1
+R7_5100	.BLKW	#1
 
 ;-----------------------------------------------------------------------------------------------------------------
 ; Subroutine: Get input
@@ -588,12 +710,158 @@ BUSYNESS_ADDR_FIRST_FREE .Fill xD000
 ;-------------------------------
 ;INSERT CODE For Subroutine 
 ;--------------------------------
+.ORIG x5400
 
+ST R0, R0_5400
+ST R1, R1_5400
+ST R2, R2_5400
+ST R3, R3_5400
+ST R4, R4_5400
+ST R5, R5_5400
+ST R6, R6_5400
+ST R7, R7_5400
+
+LEA R0, NEWLINE_5400 
+PUTS
+
+INTRO_5400
+	LEA R0, prompt
+	PUTS
+	LD R2, NEG_DEC_45_5400
+	LD R5, NEG_DEC_43_5400
+	AND R3, R3, #0
+	BR ENTER_CHECK
+
+ERROR1_5400
+	LEA R0, Error_message_2
+	PUTS
+	BR INTRO_5400
+
+ERROR2_5400
+	LEA R0, NEWLINE_5400
+	PUTS
+	LEA R0, Error_message_2
+	PUTS
+	BR INTRO_5400
+
+ENTER_CHECK
+	GETC
+	OUT
+	ADD R1, R0, #-10
+	BRz ERROR1_5400
+	
+	ADD R1, R0, R2
+	BRz CHECKER_5400
+	ADD R1, R0, R5
+	BRz CHECKER2_5400
+	
+	LD R6, DEC_5_5400
+	AND R5, R5, #0
+	ADD R1, R0, #0
+	BR USER_INPUT_5400
+
+CHAR_CHECK
+	GETC
+	OUT
+	ADD R1, R0, #-10
+	BRz ERROR1_5400
+	ADD R1, R0, #0
+	BR USER_INPUT_5400
+
+CHECKER_5400
+	LD R6, DEC_5_5400
+	AND R5, R5, #0
+	ADD R5, R5, #1
+	BR CHAR_CHECK
+	
+CHECKER2_5400
+	LD R6, DEC_5_5400
+	BR CHAR_CHECK
+
+USER_INPUT_5400
+	GETC
+	OUT
+	LD R4, HEX_CONV_5400
+	ADD R1, R0, #-10
+	BRz END_5400
+	ADD R1, R0, R4
+	BRn ERROR1_5400
+	ADD R1, R1, #-9
+	BRp ERROR2_5400
+
+INCREMENT
+	ADD R1, R1, #9
+	AND R4, R4, #0
+	ADD R4, R3, #0
+	LD R2, DEC_9_5400
+	
+SUB
+	ADD R3, R3, R4
+	ADD R2, R2, #-1
+	BRp SUB
+
+ADD R3, R3, R1
+
+BR COUNTER_5400
+	ADD R6, R6, #-1
+	BRz END_5400
+	BRp USER_INPUT_5400
+
+END_5400
+	ADD R5, R5, #-1
+	BRz FIX_5400
+	BR ACTUAL_END
+
+FIX_5400
+	NOT R3, R3
+	ADD R3, R3, #1
+
+ACTUAL_END
+	LD R4, ZERO
+	BRp TWOSC
+
+FIXER
+	ADD R4, R3, #0
+	BRn ERROR1_5400
+	ADD R4, R3, #-15
+	BRp ERROR1_5400
+	BR ACTUAL_ACTUAL_END
+TWOSC
+	NOT R5, R5
+	ADD R5, R5, #1
+	BR FIXER
+	
+ACTUAL_ACTUAL_END
+	LD R1, R1_4600
+	LD R2, R2_4600
+	LD R5, R3_4600
+	LD R4, R4_4600
+	LD R6, R6_4600
+	LD R7, R7_4600
+
+RET
 ;--------------------------------
 ;Data for subroutine Get input
 ;--------------------------------
 prompt .STRINGZ "Enter which machine you want the status of (0 - 15), followed by ENTER: "
 Error_message_2 .STRINGZ "ERROR INVALID INPUT\n"
+NEWLINE_5400	.STRINGZ	'\n'
+NEG_DEC_45_5400	.FILL	#-45
+DEC_45_5400	.FILL	#45
+NEG_DEC_43_5400	.FILL	#-43
+DEC_5_5400	.FILL	#5
+DEC_9_5400	.FILL	#9
+HEX_CONV_5400	.FILL	#-48
+ZERO	.FILL	#0	
+
+R0_5400	.BLKW	#1
+R1_5400	.BLKW	#1
+R2_5400	.BLKW	#1
+R3_5400	.BLKW	#1
+R4_5400	.BLKW	#1
+R5_5400	.BLKW	#1
+R6_5400	.BLKW	#1
+R7_5400	.BLKW	#1
 	
 ;-----------------------------------------------------------------------------------------------------------------
 ; Subroutine: print number
@@ -607,12 +875,29 @@ Error_message_2 .STRINGZ "ERROR INVALID INPUT\n"
 ;-------------------------------
 ;INSERT CODE For Subroutine 
 ;--------------------------------
+.ORIG x5700
+ST R0, R0_5700
+ST R1, R1_5700
+ST R2, R2_5700
+ST R3, R3_5700
+ST R4, R4_5700
+ST R5, R5_5700
+ST R6, R6_5700
+ST R7, R7_5700
+
 
 ;--------------------------------
 ;Data for subroutine print number
 ;--------------------------------
 
-
+R0_5700	.BLKW	#1
+R1_5700	.BLKW	#1
+R2_5700	.BLKW	#1
+R3_5700	.BLKW	#1
+R4_5700	.BLKW	#1
+R5_5700	.BLKW	#1
+R6_5700	.BLKW	#1
+R7_5700	.BLKW	#1
 
 .ORIG x6000
 MENUSTRING .STRINGZ "**********************\n* The Busyness Server *\n**********************\n1. Check to see whether all machines are busy\n2. Check to see whether all machines are free\n3. Report the number of busy machines\n4. Report the number of free machines\n5. Report the status of machine n\n6. Report the number of the first available machine\n7. Quit\n"
